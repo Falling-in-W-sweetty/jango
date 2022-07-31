@@ -1,0 +1,22 @@
+{% load i18n static %}
+<head>
+    <meta charset="UTF-8">
+    <title>数据库信息</title>
+    <!--    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">-->
+    <!-- CSS only -->
+    <link rel="stylesheet" href="/static/css/admin/css/forlogin.css">
+</head>
+<div class="container">
+
+
+    <form action="{{ app_path }}" class="login-for" method="post" id="login-form">{% csrf_token %}
+         <br>
+        <br>
+        <h2>注销成功</h2>
+        <br>
+        <br>
+        <br>
+        <button type="submit">重新登录</button>
+    </form>
+
+</div>

@@ -1,0 +1,315 @@
+{% load static%}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- 引入 ECharts 文件 -->
+
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
+     <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.min.js"></script>
+    <style type="text/css">
+        body {
+            background-color: rgba(190, 190, 190, 0.4);
+        }
+        .chart-border {
+            width: 100%;
+            height:450px; 
+            border: 1px;
+            border-style: dashed;
+            border-color: #dcd0d0;
+            padding: 5px;
+        }
+        .table-border {
+            width: 100%;
+            height: 565px; 
+            border: 1px;
+            border-style: dashed;
+            border-color: #dcd0d0;
+            padding: 5px;
+        }
+        .chart-row {
+            padding-top: 5px;
+        }
+        #xicao {
+          width:1000px; 
+          height:500px;
+          text-align:center;
+          }
+    </style>
+</head>
+<style>
+#p1
+{
+	color:red;
+} 
+.display-6{
+ text-align:center;
+}
+</style>
+<body style="height: 100%; margin: 0">
+<h1 class="display-4">锡槽</h1>
+<h2 class="display-6">故障监测</h2>
+<!--<div><button id="start">启动</button></div>
+  <div><button id="stop">停止</button></div>-->
+  <p id="p1">T2</p>
+<body>
+    <div class="container-fluid">
+        <div class="row chart-row">
+            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+            <div class="col-md-6">
+                <div id="main1" class="chart-border"></div>
+            </div>
+            <div class="col-md-6">
+                <div id="main2" class="chart-border"></div>
+            </div>
+        </div>
+
+            <div class="container">
+              <h1 class="display-6">现场参数</h1>
+                <div id="main4" class="chart-border">
+                <div id="m4_1">主传动速度: </div>
+                <div id="m4_2">冷端速度:</div>
+                <div id="m4_3">流道热偶温度:</div>
+                <div id="m4_4">一号挡帘高度:</div>
+                <div style="text-align: center; width: 500px;">
+                  <img id = 'xicao' src = "{% static "xicao.gif"%}" style="margin: 0 auto;">
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        
+        // app.title = '多 Y 轴示例';
+        // 基于准备好的dom，初始化echarts实例
+     var myChart1 = echarts.init(document.getElementById('main1'),  null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+    var app = {};
+    var option1;
+    var date = [];
+    
+    option1 = {
+        visualMap: {
+        show: false,
+        pieces: [
+          {
+            gt: 0,
+            lte: 13.54,          //这儿设置基线上下颜色区分 基线下面为绿色
+            color: '#53d6d6'
+        }, {
+                    
+            gt: 13.54,          //这儿设置基线上下颜色区分 基线上面为红色
+            color: 'rgba(230,114,93,1)'
+        }]
+    },
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'line'
+        }
+    },
+  xAxis: {
+    type: 'category',
+    boundaryGap: false,
+    data: []
+  },
+  yAxis: {
+    boundaryGap: [0, '50%'],
+    type: 'value'
+  },
+  series: [
+    {
+      name: 'T2统计量',
+      type: 'line',
+      smooth: true,
+      symbol: 'none',
+      stack: 'a',
+      areaStyle: {
+        normal: {}
+      },
+      data: [],
+      markLine: {
+            silent: true,
+            lineStyle: {
+              normal: {
+                color: '#000000'                   // 这儿设置安全基线颜色
+              }
+            },
+            data: [{
+                yAxis: 13.45
+            }],
+            label: {
+              normal: {
+                formatter: '13.54\nT2 控制线'           // 这儿设置安全基线
+              }
+            },
+        },
+    }
+  ]
+};
+        var num_List = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        myChart1.setOption(option1);
+
+var myChart2 = echarts.init(document.getElementById('main2'), null,
+        {
+      renderer: 'canvas',
+      useDirtyRect: false
+        });
+
+        // var colors = ['orange', '#d14a61', '#1E90FF'];
+        var app = {};
+    
+        var option2;
+        hours = [];
+        const days = ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32'
+];
+        data = [];
+option2 = {
+  tooltip: {
+    trigger: 'item',
+        axisPointer: {
+          type: 'cross',
+        },
+    position: 'top'
+  },
+  grid: {
+    height: '60%',
+    top: '10%'
+  },
+  xAxis: {
+    type: 'category',
+    data: hours,
+    splitArea: {
+      show: true
+    }
+  },
+  yAxis: {
+    type: 'category',
+    data: days,
+    splitArea: {
+      show: true
+    }
+  },
+  visualMap: {
+    min: 0,
+    max: 150000,
+    calculable: true,
+    orient: 'horizontal',
+    right: 50,
+    top: '80%',
+    inRange:{
+            color: ['rgba(220,220,220,0.0000001)','rgba(223,173,94,0.7)', 'rgba(230,114,93,1)'],
+            colorAlpha:90
+        }
+  },
+  series: [
+    {
+      name: 'T2贡献值',
+      type: 'heatmap',
+      data: data,
+      label: {
+        show: false
+      },
+      //emphasis高亮样式
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 5,
+          shadowColor: 'rgba(128, 128, 128, 1)'
+        }
+      }
+    }
+  ]
+};
+
+    if (option1 && typeof option2 === 'object') {
+      myChart1.setOption(option2);
+    }
+
+window.addEventListener('resize', myChart2.resize);
+
+var now_timeList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+var now_timeList2 = [0,0,0,0,0,0,0,0,0,0]
+var data_List = [
+[0, 0, 0],[0, 1, 0],[0, 2, 0],[0, 3, 0],[0, 4, 0],[0, 5, 0],[0, 6, 0],[0, 7, 0],[0, 8, 0],[0, 9, 0],[0, 10, 0],[0, 11, 0],[0, 12, 0],[0, 13, 0],[0, 14, 0],[0, 15, 0],[0, 16, 0],[0, 17, 0],[0, 18, 0],[0, 19, 0],[0, 20, 0],[0, 21, 0],[0, 22, 0],[0, 23, 0],[0, 24, 0],[0, 25, 0],[0, 26, 0],[0, 27, 0],[0, 28, 0],[0, 29, 0],[0, 30, 0],[0, 31, 0],[0, 32, 0],
+[1, 0, 0],[1, 1, 0],[1, 2, 0],[1, 3, 0],[1, 4, 0],[1, 5, 0],[1, 6, 0],[1, 7, 0],[1, 8, 0],[1, 9, 0],[1, 10, 0],[1, 11, 0],[1, 12, 0],[1, 13, 0],[1, 14, 0],[1, 15, 0],[1, 16, 0],[1, 17, 0],[1, 18, 0],[1, 19, 0],[1, 20, 0],[1, 21, 0],[1, 22, 0],[1, 23, 0],[1, 24, 0],[1, 25, 0],[1, 26, 0],[1, 27, 0],[1, 28, 0],[1, 29, 0],[1, 30, 0],[1, 31, 0],[1, 32, 0],
+[2, 0, 0],[2, 1, 0],[2, 2, 0],[2, 3, 0],[2, 4, 0],[2, 5, 0],[2, 6, 0],[2, 7, 0],[2, 8, 0],[2, 9, 0],[2, 10, 0],[2, 11, 0],[2, 12, 0],[2, 13, 0],[2, 14, 0],[2, 15, 0],[2, 16, 0],[2, 17, 0],[2, 18, 0],[2, 19, 0],[2, 20, 0],[2, 21, 0],[2, 22, 0],[2, 23, 0],[2, 24, 0],[2, 25, 0],[2, 26, 0],[2, 27, 0],[2, 28, 0],[2, 29, 0],[2, 30, 0],[2, 31, 0],[2, 32, 0],
+[3, 0, 0],[3, 1, 0],[3, 2, 0],[3, 3, 0],[3, 4, 0],[3, 5, 0],[3, 6, 0],[3, 7, 0],[3, 8, 0],[3, 9, 0],[3, 10, 0],[3, 11, 0],[3, 12, 0],[3, 13, 0],[3, 14, 0],[3, 15, 0],[3, 16, 0],[3, 17, 0],[3, 18, 0],[3, 19, 0],[3, 20, 0],[3, 21, 0],[3, 22, 0],[3, 23, 0],[3, 24, 0],[3, 25, 0],[3, 26, 0],[3, 27, 0],[3, 28, 0],[3, 29, 0],[3, 30, 0],[3, 31, 0],[3, 32, 0],
+[4, 0, 0],[4, 1, 0],[4, 2, 0],[4, 3, 0],[4, 4, 0],[4, 5, 0],[4, 6, 0],[4, 7, 0],[4, 8, 0],[4, 9, 0],[4, 10, 0],[4, 11, 0],[4, 12, 0],[4, 13, 0],[4, 14, 0],[4, 15, 0],[4, 16, 0],[4, 17, 0],[4, 18, 0],[4, 19, 0],[4, 20, 0],[4, 21, 0],[4, 22, 0],[4, 23, 0],[4, 24, 0],[4, 25, 0],[4, 26, 0],[4, 27, 0],[4, 28, 0],[4, 29, 0],[4, 30, 0],[4, 31, 0],[4, 32, 0],
+[5, 0, 0],[5, 1, 0],[5, 2, 0],[5, 3, 0],[5, 4, 0],[5, 5, 0],[5, 6, 0],[5, 7, 0],[5, 8, 0],[5, 9, 0],[5, 10, 0],[5, 11, 0],[5, 12, 0],[5, 13, 0],[5, 14, 0],[5, 15, 0],[5, 16, 0],[5, 17, 0],[5, 18, 0],[5, 19, 0],[5, 20, 0],[5, 21, 0],[5, 22, 0],[5, 23, 0],[5, 24, 0],[5, 25, 0],[5, 26, 0],[5, 27, 0],[5, 28, 0],[5, 29, 0],[5, 30, 0],[5, 31, 0],[5, 32, 0],
+[6, 0, 0],[6, 1, 0],[6, 2, 0],[6, 3, 0],[6, 4, 0],[6, 5, 0],[6, 6, 0],[6, 7, 0],[6, 8, 0],[6, 9, 0],[6, 10, 0],[6, 11, 0],[6, 12, 0],[6, 13, 0],[6, 14, 0],[6, 15, 0],[6, 16, 0],[6, 17, 0],[6, 18, 0],[6, 19, 0],[6, 20, 0],[6, 21, 0],[6, 22, 0],[6, 23, 0],[6, 24, 0],[6, 25, 0],[6, 26, 0],[6, 27, 0],[6, 28, 0],[6, 29, 0],[6, 30, 0],[6, 31, 0],[6, 32, 0],
+[7, 0, 0],[7, 1, 0],[7, 2, 0],[7, 3, 0],[7, 4, 0],[7, 5, 0],[7, 6, 0],[7, 7, 0],[7, 8, 0],[7, 9, 0],[7, 10, 0],[7, 11, 0],[7, 12, 0],[7, 13, 0],[7, 14, 0],[7, 15, 0],[7, 16, 0],[7, 17, 0],[7, 18, 0],[7, 19, 0],[7, 20, 0],[7, 21, 0],[7, 22, 0],[7, 23, 0],[7, 24, 0],[7, 25, 0],[7, 26, 0],[7, 27, 0],[7, 28, 0],[7, 29, 0],[7, 30, 0],[7, 31, 0],[7, 32, 0],
+[8, 0, 0],[8, 1, 0],[8, 2, 0],[8, 3, 0],[8, 4, 0],[8, 5, 0],[8, 6, 0],[8, 7, 0],[8, 8, 0],[8, 9, 0],[8, 10, 0],[8, 11, 0],[8, 12, 0],[8, 13, 0],[8, 14, 0],[8, 15, 0],[8, 16, 0],[8, 17, 0],[8, 18, 0],[8, 19, 0],[8, 20, 0],[8, 21, 0],[8, 22, 0],[8, 23, 0],[8, 24, 0],[8, 25, 0],[8, 26, 0],[8, 27, 0],[8, 28, 0],[8, 29, 0],[8, 30, 0],[8, 31, 0],[8, 32, 0],
+[9, 0, 0],[9, 1, 0],[9, 2, 0],[9, 3, 0],[9, 4, 0],[9, 5, 0],[9, 6, 0],[9, 7, 0],[9, 8, 0],[9, 9, 0],[9, 10, 0],[9, 11, 0],[9, 12, 0],[9, 13, 0],[9, 14, 0],[9, 15, 0],[9, 16, 0],[9, 17, 0],[9, 18, 0],[9, 19, 0],[9, 20, 0],[9, 21, 0],[9, 22, 0],[9, 23, 0],[9, 24, 0],[9, 25, 0],[9, 26, 0],[9, 27, 0],[9, 28, 0],[9, 29, 0],[9, 30, 0],[9, 31, 0],[9, 32, 0],
+]
+var major_variable = []
+//var start_btn = document.getElementById('start')
+//var stop_btn  = document.getElementById('stop')
+      
+$.ajax({
+    url: '/gongxiantu2/',
+    type: 'POST',
+    dataType:"json",
+    success: function (data) {
+    now_timeList = data.datas.ini_time1;
+    now_timeList2 = data.datas.ini_time2;
+    data_List = data.datas.ini_t2gx;
+    num_List = data.datas.ini_num;
+    console.log('请求初始值')
+    }
+              })
+
+
+
+myChart2.setOption(option2);
+        function getpcagxt() {
+            $.ajax({
+                url: '/gongxiantu2/',
+                type: 'POST',
+                dataType:"json",
+                success: function (data) {
+                    major_variable = data.datas.major_variable;
+                    document.getElementById('m4_1').innerHTML='主传动速度： '+ data.datas.major_variable[0] +' m/min ';
+                    document.getElementById('m4_2').innerHTML='冷端速度： '+ data.datas.major_variable[1] +' m/min ';
+                    document.getElementById('m4_3').innerHTML='流道热偶温度： '+ data.datas.major_variable[2] +' ℃';
+                    document.getElementById('m4_4').innerHTML='一号挡帘高度： '+ data.datas.major_variable[3] +' mm ';
+                    num_List.push(data.datas.num);
+                    for(var i =0;i<33;i++){
+                    data_List.shift()
+                    }
+                    data_List = data_List.map(function(item){
+                    return [item[0]-1,item[1],item[2]]
+                    }
+                    )
+                    data_List.push.apply(data_List,data.datas.numgxt);
+                    now_timeList.push(data.datas.local_time);
+                    now_timeList2.push(data.datas.local_time);
+                    document.getElementById('p1').innerHTML='T2统计量:  '+ data.datas.num +'   时间： '+data.datas.local_time
+                    now_timeList.shift();
+                    now_timeList2.shift();
+                    num_List.shift()
+                    option2.xAxis.data = now_timeList2;
+                    option1.xAxis.data = now_timeList;
+                    option2.series[0].data = data_List;
+                    option1.series[0].data = num_List;
+                    myChart2.setOption(option2);
+                    myChart1.setOption(option1);
+                    
+                }
+            })
+        }
+    myChart2.setOption(option2)
+    myChart1.setOption(option1)
+    //start_btn.onclick = function(){
+    time = setInterval(getpcagxt, 500);
+        /*}
+        stop_btn.onclick = function() {
+            clearInterval(time)
+        }*/
+        
+    </script>
+</body>
+</html>
